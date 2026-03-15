@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀 Mission Control v4</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+.header{background:linear-gradient(135deg,#667eea,#764ba2);padding:25px 30px;display:flex;justify-content:space-between;align-items:center}
+.header h1{font-size:28px}.version{background:rgba(255,255,255,.2);padding:6px 16px;border-radius:20px;font-size:13px}
+.nav{display:flex;background:#1e293b;padding:15px 30px;gap:12px;border-bottom:1px solid #334155}
+.nav-btn{padding:12px 24px;background:#334155;border:none;color:#e2e8f0;border-radius:10px;cursor:pointer;font-weight:600;transition:all .3s}
+.nav-btn:hover{background:#475569}.nav-btn.active{background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 4px 15px rgba(102,126,234,.4)}
+.content{padding:30px;max-width:1400px;margin:0 auto}
+.tab{display:none;animation:fadeIn .3s}.tab.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:25px}
+.card{background:linear-gradient(145deg,#1e293b,#0f172a);border-radius:16px;padding:25px;border:1px solid #334155;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#667eea,#764ba2);opacity:0;transition:opacity .3s}
+.card:hover{transform:translateY(-5px);border-color:#667eea;box-shadow:0 20px 40px rgba(102,126,234,.2)}.card:hover::before{opacity:1}
+.card-icon{font-size:44px;margin-bottom:10px}.card-title{font-size:20px;font-weight:700;margin-bottom:5px}.card-sub{font-size:14px;color:#94a3b8}
+.progress-bar{height:10px;background:#334155;border-radius:5px;overflow:hidden;margin:15px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,#667eea,#764ba2);border-radius:5px;transition:width .8s}
+.badge{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;display:inline-block}
+.b-green{background:#065f46;color:#34d399}.b-yellow{background:#92400e;color:#fbbf24}.b-red{background:#991b1b;color:#f87171}.b-blue{background:#1e40af;color:#60a5fa}.b-purple{background:#581c87;color:#c084fc}
+.stats{display:flex;gap:15px;margin-top:15px;font-size:13px;flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.d-green{background:#34d399}.d-yellow{background:#fbbf24}.d-blue{background:#60a5fa}.d-red{background:#f87171}
+.tag{display:inline-flex;align-items:center;gap:6px;background:#334155;padding:6px 12px;border-radius:20px;font-size:12px;margin:4px 4px 0 0;cursor:pointer;transition:all .2s}
+.tag:hover{background:#475569;transform:scale(1.05)}
+h2{margin-bottom:25px;padding-bottom:15px;border-bottom:2px solid #334155;font-size:24px}
+h3.section{font-size:13px;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin:25px 0 12px}
+.modal-bg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);z-index:1000;backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:20px}
+.modal-bg.active{display:flex}
+.modal{background:linear-gradient(145deg,#1e293b,#0f172a);border-radius:20px;width:100%;max-width:700px;max-height:85vh;overflow-y:auto;border:1px solid #334155;box-shadow:0 25px 50px rgba(0,0,0,.5);animation:modalIn .3s}
+@keyframes modalIn{from{opacity:0;transform:scale(.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-head{padding:25px 30px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,rgba(102,126,234,.1),rgba(118,75,162,.1))}
+.modal-head h2{border:none;padding:0;margin:0;font-size:24px}
+.close{background:#334155;border:none;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:20px;transition:all .2s}.close:hover{background:#f87171;transform:rotate(90deg)}
+.modal-body{padding:30px}
+.linked{background:#0f172a;padding:15px;border-radius:10px;margin-bottom:10px;border-left:3px solid #667eea;cursor:pointer;transition:all .2s}
+.linked:hover{background:#1e293b;transform:translateX(5px)}.linked.blocked{border-left-color:#f87171}.linked.done{border-left-color:#34d399}
+.linked-title{font-weight:600;font-size:15px;margin-bottom:4px}.linked-meta{font-size:12px;color:#64748b}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:15px;margin:20px 0}
+.info-box{background:#0f172a;padding:15px;border-radius:10px;text-align:center}
+.info-val{font-size:26px;font-weight:700;color:#667eea}.info-lbl{font-size:11px;color:#64748b;margin-top:5px;text-transform:uppercase}
+.member{background:linear-gradient(145deg,#1e293b,#0f172a);border-radius:16px;padding:25px;border:1px solid #334155;cursor:pointer;transition:all .3s;position:relative}
+.member:hover{border-color:#667eea;transform:scale(1.02);box-shadow:0 10px 30px rgba(102,126,234,.15)}
+.member::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#667eea,#764ba2);opacity:0;transition:opacity .3s;border-radius:16px 16px 0 0}
+.member:hover::before{opacity:1}
+.member-head{display:flex;align-items:center;gap:15px;margin-bottom:20px}
+.avatar{font-size:50px;width:80px;height:80px;background:#334155;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,0,0,.3)}
+.member-name{font-size:22px;font-weight:700;margin-bottom:4px}
+.member-role{color:#94a3b8;font-size:14px}
+.member-model{display:inline-block;background:#334155;padding:4px 10px;border-radius:6px;font-size:12px;color:#a5b4fc;margin-top:8px}
+.skill{display:inline-block;background:rgba(102,126,234,.2);color:#a5b4fc;padding:4px 10px;border-radius:6px;font-size:12px;margin:3px 3px 0 0;transition:all .2s}
+.skill:hover{background:rgba(102,126,234,.4);transform:translateY(-2px)}
+.cost-card{background:#1e293b;border-radius:12px;padding:20px;border:1px solid #334155;margin-bottom:10px}
+.cost-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e293b;font-size:14px}
+.cost-row:last-child{border:none}
+.status-indicator{display:inline-flex;align-items:center;gap:8px;font-size:13px;margin-top:10px}
+.status-dot{width:10px;height:10px;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.status-online{background:#34d399}.status-waiting{background:#fbbf24}.status-blocked{background:#f87171}
+.activity-log{background:#0f172a;padding:15px;border-radius:10px;margin:15px 0;font-size:13px;color:#94a3b8;border-left:3px solid #667eea}
+
+/* Organigramm */
+.org-chart { display:flex; flex-direction:column; align-items:center; margin-bottom:40px }
+.org-top { background:linear-gradient(145deg,#1e293b,#0f172a); border:2px solid #667eea; border-radius:16px; padding:30px 50px; text-align:center; cursor:pointer; transition:all .3s; position:relative }
+.org-top:hover { transform:scale(1.05); box-shadow:0 10px 30px rgba(102,126,234,.3) }
+.org-arrow { font-size:40px; color:#667eea; margin:10px 0; animation:bounce 2s infinite }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
+.org-row { display:flex; gap:20px; justify-content:center; flex-wrap:wrap; margin-top:10px }
+.org-member { background:#1e293b; border:1px solid #334155; border-radius:12px; padding:20px; text-align:center; min-width:120px; cursor:pointer; transition:all .2s }
+.org-member:hover { border-color:#667eea; transform:translateY(-5px); box-shadow:0 10px 25px rgba(102,126,234,.2) }
+.org-avatar { font-size:36px; margin-bottom:10px }
+.org-name { font-weight:700; font-size:15px; color:#e2e8f0 }
+.org-role { font-size:12px; color:#94a3b8; margin-top:4px }
+
+/* Tasks Grid 3-Spalten */
+.tasks-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:25px; margin-top:20px }
+.task-column { background:#1e293b; border-radius:16px; padding:20px; border:1px solid #334155; min-height:400px }
+.task-column h3 { margin-top:0; margin-bottom:20px; color:#e2e8f0; text-align:center; padding-bottom:15px; border-bottom:2px solid #334155 }
+.task-column.work h3 { color:#fbbf24; border-color:#fbbf24 }
+.task-column.blocked h3 { color:#f87171; border-color:#f87171 }
+.task-column.done h3 { color:#34d399; border-color:#34d399 }
+
+/* Ideen-Bucket */
+.ideas-section { background:linear-gradient(135deg,rgba(102,126,234,.1),rgba(118,75,162,.1)); border:1px solid #475569; border-radius:16px; padding:25px; margin-bottom:30px }
+.ideas-section h3 { color:#93c5fd; margin-top:0; margin-bottom:15px; font-size:18px }
+.idea-card { background:#1e293b; border:1px solid #334155; border-radius:10px; padding:15px; margin-bottom:12px; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:12px }
+.idea-card:hover { border-color:#667eea; transform:translateX(5px) }
+.idea-icon { font-size:24px }
+.idea-text { flex:1 }
+.idea-title { font-weight:600; font-size:14px; margin-bottom:3px }
+.idea-meta { font-size:12px; color:#64748b }
+
+.linked { position: relative; }
+.linked .move-actions { 
+  opacity: 0; 
+  transition: opacity 0.2s;
+  margin-top: 8px;
+}
+.linked:hover .move-actions { 
+  opacity: 1; 
+}
+
+/* Drag & Drop Styles */
+.linked { 
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+.linked:active { 
+  cursor: grabbing;
+}
+.linked.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+  box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+}
+.task-column {
+  transition: all 0.3s ease;
+  min-height: 200px;
+}
+.task-column.drag-over {
+  background: rgba(102,126,234,0.1);
+  border: 2px dashed #667eea;
+}
+.linked select:hover {
+  background: #475569;
+}
+.task-count {
+  transition: all 0.3s ease;
+}
+</style>
+</head>
+<body>
+<div class="header">
+<div><h1>🚀 Mission Control</h1><div style="font-size:13px;opacity:.9;margin-top:5px">Interaktives Dashboard — Team, Projekte, Tasks</div></div>
+<div class="version">v4.1</div>
+</div>
+
+<div class="nav">
+<button class="nav-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
+<button class="nav-btn" onclick="showTab('projects')">📁 Projekte</button>
+<button class="nav-btn" onclick="showTab('tasks')">📋 Tasks</button>
+<button class="nav-btn" onclick="showTab('team')">👥 Team</button>
+</div>
+
+<div class="content">
+<div id="dashboard" class="tab active">
+<h2>🎯 Projekt-Übersicht</h2>
+<div class="grid">
+
+<!-- Projekt 1: human+AI -->
+<div class="card" onclick="openM('m-hai')">
+<div class="card-icon">🎯</div>
+<div class="card-title">human + AI</div>
+<div class="card-sub">HR-Leiter Community aufbauen</div>
+<div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+<div class="stats">
+<span class="stat"><span class="dot d-green"></span>2 erledigt</span>
+<span class="stat"><span class="dot d-yellow"></span>1 in Arbeit</span>
+<span class="stat"><span class="dot d-blue"></span>2 wartend</span>
+</div>
+<div style="margin-top:15px">
+<span class="tag" onclick="event.stopPropagation();openM('m-mira')">🎤 Mira</span>
+<span class="tag" onclick="event.stopPropagation();openM('m-promi')">🎯 Promi</span>
+<span class="tag" onclick="event.stopPropagation()">👔 Manuel</span>
+</div>
+</div>
+
+<!-- Projekt 2: Termin -->
+<div class="card" onclick="openM('m-termin')">
+<div class="card-icon">📅</div>
+<div class="card-title">Termin-Assistent</div>
+<div class="card-sub">Kai organisiert automatisch</div>
+<div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+<div class="stats">
+<span class="stat"><span class="dot d-blue"></span>2 warten auf Antwort</span>
+<span class="stat"><span class="dot d-red"></span>1 blocked</span>
+</div>
+<div style="margin-top:15px">
+<span class="tag" onclick="event.stopPropagation();openM('m-kai')">📅 Kai</span>
+</div>
+</div>
+
+<!-- Projekt 3: Telefonie -->
+<div class="card" onclick="openM('m-tel')">
+<div class="card-icon">📞</div>
+<div class="card-title">Telefonie</div>
+<div class="card-sub">Leo in Ausbildung</div>
+<div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div>
+<div class="stats">
+<span class="stat"><span class="dot d-red"></span>Blocked: Twilio</span>
+</div>
+<div style="margin-top:15px">
+<span class="tag" onclick="event.stopPropagation();openM('m-leo')">📞 Leo</span>
+</div>
+</div>
+
+</div>
+
+<h3 class="section">💰 Kosten-Übersicht (März 2026)</h3>
+<div class="cost-card">
+<div class="cost-row"><span><strong>Gesamt Monat</strong></span><span style="color:#f87171;font-weight:700">$35.80</span></div>
+<div class="cost-row"><span>Claude Opus (Promi)</span><span>$30.07</span></div>
+<div class="cost-row"><span>Kimi K2.5 (Promi günstig)</span><span>$5.50</span></div>
+<div class="cost-row"><span>Gemini Flash (Kai)</span><span>$0.23</span></div>
+<div class="cost-row"><span><strong>Empfehlung:</strong> Max $5/Tag</span><span style="color:#34d399">Kimi als Standard</span></div>
+</div>
+</div>
+<div id="projects" class="tab">
+<h2>📁 Projekte</h2>
+
+<!-- Projekt human+AI -->
+<div class="card" onclick="openM('m-hai')">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<span class="card-title">🎯 human + AI</span>
+<span class="badge b-green">60%</span>
+</div>
+<div class="card-sub">Die größte HR-Leiter Community im DACH-Raum aufbauen. Roundtable zum Thema KI im Personalwesen.</div>
+<div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+
+<h3 class="section">🔗 Verknüpfte Tasks</h3>
+<div class="linked done" onclick="event.stopPropagation()"><div class="linked-title">✅ Survey-Bot erstellt</div><div class="linked-meta">Erledigt • Promi</div></div>
+<div class="linked done" onclick="event.stopPropagation()"><div class="linked-title">✅ Fragen definiert</div><div class="linked-meta">Erledigt • Promi</div></div>
+<div class="linked" onclick="event.stopPropagation();openM('m-task-survey-send')"><div class="linked-title">📧 Survey an HR-Leiter senden</div><div class="linked-meta">Ready • Manuel</div></div>
+<div class="linked" onclick="event.stopPropagation()"><div class="linked-title">📊 Ergebnisse sammeln</div><div class="linked-meta">Wartend • Mira</div></div>
+
+<h3 class="section">👥 Team</h3>
+<span class="tag" onclick="event.stopPropagation();openM('m-mira')">🎤 Mira</span>
+<span class="tag" onclick="event.stopPropagation();openM('m-promi')">🎯 Promi</span>
+<span class="tag" onclick="event.stopPropagation()">👔 Manuel</span>
+</div>
+
+<!-- Projekt Termin -->
+<div class="card" onclick="openM('m-termin')">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<span class="card-title">📅 Termin-Assistent</span>
+<span class="badge b-green">80%</span>
+</div>
+<div class="card-sub">Kai organisiert automatisch Mittagessen und Termine. Prüft alle 15 Minuten die Inbox.</div>
+<div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+
+<h3 class="section">🔗 Aktive Verhandlungen</h3>
+<div class="linked" onclick="event.stopPropagation();openM('m-kai')"><div class="linked-title">Christian Lütkemeyer</div><div class="linked-meta">Mittagessen KW 13 • seit 14.03.</div></div>
+<div class="linked" onclick="event.stopPropagation();openM('m-kai')"><div class="linked-title">Manuel Stepp</div><div class="linked-meta">Test-Termin • seit 14.03.</div></div>
+<div class="linked blocked" onclick="event.stopPropagation();openM('m-leo')"><div class="linked-title">🔴 Matthias Eberle</div><div class="linked-meta">Blocked: Keine E-Mail</div></div>
+
+<h3 class="section">👥 Team</h3>
+<span class="tag" onclick="event.stopPropagation();openM('m-kai')">📅 Kai</span>
+<span class="tag" onclick="event.stopPropagation();openM('m-promi')">🎯 Promi</span>
+</div>
+
+<!-- Projekt Telefonie -->
+<div class="card" onclick="openM('m-tel')">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<span class="card-title">📞 Telefonie</span>
+<span class="badge b-yellow">40%</span>
+</div>
+<div class="card-sub">Leo lernt telefonieren. VAPI eingerichtet, Twilio wartet auf Upgrade.</div>
+<div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div>
+
+<div class="linked blocked" onclick="event.stopPropagation();openM('m-leo')" style="margin-top:15px"><div style="display:flex;justify-content:space-between"><span class="linked-title">🔴 Twilio Upgrade</span><span class="badge b-red">Blocked</span></div><div class="linked-meta">$20 nötig für internationale Anrufe</div></div>
+
+<h3 class="section">👥 Team</h3>
+<span class="tag" onclick="event.stopPropagation();openM('m-leo')">📞 Leo</span>
+<span class="tag" onclick="event.stopPropagation();openM('m-promi')">🎯 Promi</span>
+</div>
+</div>
+<div id="tasks" class="tab">
+<h2>📋 Alle Tasks</h2>
+
+<!-- 🔍 Projekt-Filter -->
+<div class="filter-bar" style="background:#1e293b;padding:15px 20px;border-radius:12px;margin-bottom:25px;border:1px solid #334155">
+<span style="color:#94a3b8;margin-right:15px;font-weight:600">Filter nach Projekt:</span>
+<button class="filter-btn active" onclick="filterTasks('all')" style="padding:8px 16px;margin:4px;border:none;border-radius:8px;background:#667eea;color:#fff;cursor:pointer">Alle</button>
+<button class="filter-btn" onclick="filterTasks('human-ai')" style="padding:8px 16px;margin:4px;border:none;border-radius:8px;background:#334155;color:#e2e8f0;cursor:pointer">🎯 human+AI</button>
+<button class="filter-btn" onclick="filterTasks('termin')" style="padding:8px 16px;margin:4px;border:none;border-radius:8px;background:#334155;color:#e2e8f0;cursor:pointer">📅 Termin-Assistent</button>
+<button class="filter-btn" onclick="filterTasks('telefonie')" style="padding:8px 16px;margin:4px;border:none;border-radius:8px;background:#334155;color:#e2e8f0;cursor:pointer">📞 Telefonie</button>
+<button class="filter-btn" onclick="filterTasks('linkedin')" style="padding:8px 16px;margin:4px;border:none;border-radius:8px;background:#334155;color:#e2e8f0;cursor:pointer">💼 LinkedIn</button>
+</div>
+
+<!-- 💡 Ideen & Vorschläge -->
+<div class="ideas-section">
+<h3>💡 Ideen & Vorschläge — Was könnte helfen?</h3>
+<div class="idea-card" onclick="openM('m-leo')">
+<span class="idea-icon">🔍</span>
+<div class="idea-text">
+<div class="idea-title">Matthias' E-Mail recherchieren</div>
+<div class="idea-meta">Über Xing, LinkedIn oder Firmenwebsite</div>
+</div>
+</div>
+<div class="idea-card" onclick="openM('m-tel')">
+<span class="idea-icon">💳</span>
+<div class="idea-text">
+<div class="idea-title">Twilio Budget freigeben</div>
+<div class="idea-meta">$20 Upgrade für internationale Anrufe</div>
+</div>
+</div>
+<div class="idea-card" onclick="openM('m-hai')">
+<span class="idea-icon">🔐</span>
+<div class="idea-text">
+<div class="idea-title">GitHub Pages Token erneuern</div>
+<div class="idea-meta">Für automatisches Deployment</div>
+</div>
+</div>
+<div class="idea-card" onclick="openM('m-mira')">
+<span class="idea-icon">📧</span>
+<div class="idea-text">
+<div class="idea-title">HR-Leiter Liste aufbauen</div>
+<div class="idea-meta">Kontaktdaten für Survey sammeln</div>
+</div>
+</div>
+</div>
+
+<!-- 3-Spalten Tasks -->
+<div class="tasks-grid">
+<div class="task-column work" ondrop="drop(event)" ondragover="allowDrop(event)" data-column="work">
+<h3>🏃‍♂️ In Arbeit <span class="task-count">3</span></h3>
+<div class="linked" id="task-1" draggable="true" ondragstart="drag(event)" data-project="human-ai" onclick="openM('m-task-survey-send')">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span class="linked-title">📧 Survey an HR-Leiter senden</span>
+<span class="badge b-yellow">Ready</span>
+</div>
+<div class="linked-meta">Projekt: human+AI • Zuständig: Manuel</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked" id="task-2" draggable="true" ondragstart="drag(event)" data-project="termin" onclick="openM('m-kai')">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span class="linked-title">⏳ Christians Antwort</span>
+<span class="badge b-blue">Wartend</span>
+</div>
+<div class="linked-meta">Projekt: Termin-Assistent • Kai</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin" selected>📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked" id="task-3" draggable="true" ondragstart="drag(event)" data-project="termin" onclick="openM('m-kai')">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span class="linked-title">⏳ Manuels Test-Antwort</span>
+<span class="badge b-blue">Wartend</span>
+</div>
+<div class="linked-meta">Projekt: Termin-Assistent • Kai</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin" selected>📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+</div>
+
+<div class="task-column blocked" ondrop="drop(event)" ondragover="allowDrop(event)" data-column="blocked">
+<h3>🔴 Blocked <span class="task-count">3</span></h3>
+<div class="linked blocked" id="task-4" draggable="true" ondragstart="drag(event)" data-project="termin" onclick="openM('m-leo')">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span class="linked-title">🔴 Matthias kontaktieren</span>
+<span class="badge b-red">Blocked</span>
+</div>
+<div class="linked-meta">Keine E-Mail vorhanden</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin" selected>📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked blocked" id="task-5" draggable="true" ondragstart="drag(event)" data-project="telefonie" onclick="openM('m-tel')">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span class="linked-title">🔴 Twilio Upgrade</span>
+<span class="badge b-red">Blocked</span>
+</div>
+<div class="linked-meta">$20 nötig für internationale Anrufe</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie" selected>📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked blocked" id="task-6" draggable="true" ondragstart="drag(event)" data-project="human-ai" onclick="openM('m-hai')">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span class="linked-title">🔴 GitHub Pages Deploy</span>
+<span class="badge b-red">Blocked</span>
+</div>
+<div class="linked-meta">Auth-Problem mit Token</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+</div>
+
+<div class="task-column done" ondrop="drop(event)" ondragover="allowDrop(event)" data-column="done">
+<h3>✅ Erledigt <span class="task-count">8</span></h3>
+<div class="linked done" id="task-7" draggable="true" ondragstart="drag(event)" data-project="termin"><div class="linked-title">✅ Termin-Bot einrichten</div><div class="linked-meta">Promi • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin" selected>📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-8" draggable="true" ondragstart="drag(event)" data-project="human-ai"><div class="linked-title">✅ Survey-Bot erstellen (VAPI)</div><div class="linked-meta">Promi • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-9" draggable="true" ondragstart="drag(event)" data-project="telefonie"><div class="linked-title">✅ VAPI einrichten</div><div class="linked-meta">Promi • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie" selected>📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-10" draggable="true" ondragstart="drag(event)" data-project="human-ai"><div class="linked-title">✅ Fragen definieren</div><div class="linked-meta">Promi • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-11" draggable="true" ondragstart="drag(event)" data-project="termin"><div class="linked-title">✅ E-Mails gesendet</div><div class="linked-meta">Kai • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin" selected>📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-12" draggable="true" ondragstart="drag(event)" data-project="human-ai"><div class="linked-title">✅ Team aufgebaut</div><div class="linked-meta">Promi • 15.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-13" draggable="true" ondragstart="drag(event)" data-project="human-ai"><div class="linked-title">✅ API-Keys gesichert</div><div class="linked-meta">Promi • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-14" draggable="true" ondragstart="drag(event)" data-project="human-ai"><div class="linked-title">✅ Dashboard V2 gebaut</div><div class="linked-meta">Dev+Promi • 15.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<div id="team" class="tab">
+  <h2>👥 Das A-Team</h2>
+<!-- Organigramm -->
+<div class="org-chart">
+<div class="org-top" onclick="openM('m-promi')">
+<div class="org-avatar">🎯</div>
+<div class="org-name">Promi</div>
+<div class="org-role">Chief of Staff</div>
+</div>
+<div class="org-arrow">⬇️</div>
+<div class="org-row">
+<div class="org-member" onclick="openM('m-dev')">
+<div class="org-avatar">💻</div>
+<div class="org-name">Dev</div>
+<div class="org-role">Coder</div>
+</div>
+<div class="org-member" onclick="openM('m-leo')">
+<div class="org-avatar">📞</div>
+<div class="org-name">Leo</div>
+<div class="org-role">Telefonie</div>
+</div>
+<div class="org-member" onclick="openM('m-kai')">
+<div class="org-avatar">📅</div>
+<div class="org-name">Kai</div>
+<div class="org-role">Termine</div>
+</div>
+<div class="org-member" onclick="openM('m-mira')">
+<div class="org-avatar">🎤</div>
+<div class="org-name">Mira</div>
+<div class="org-role">Gespräche</div>
+</div>
+</div>
+</div>
+
+
+  <div class="grid">
+
+    <!-- Promi -->
+    <div class="member" onclick="openM('m-promi')">
+      <div class="member-head">
+        <div class="avatar">🎯</div>
+        <div>
+          <div class="member-name">Promi</div>
+          <div class="member-role">Chief of Staff & Architekt</div>
+          <div class="member-model">🧠 Kimi K2.5 (Opus bei Eskalation)</div>
+          <div class="status-indicator"><span class="status-dot status-online"></span>🟢 Online — Dashboard reviewen</div>
+        </div>
+      </div>
+      <div style="margin-bottom:15px">
+        <span class="skill">Planung</span><span class="skill">Code-Review</span><span class="skill">Troubleshooting</span><span class="skill">Bot-Orchestrierung</span><span class="skill">Auswertung</span><span class="skill">Telegram</span>
+      </div>
+      <h3 class="section">Aktuelle Tasks</h3>
+      <div class="linked" onclick="event.stopPropagation()"><div class="linked-title">Team koordinieren</div><div class="linked-meta">Laufend</div></div>
+      <div class="linked" onclick="event.stopPropagation()"><div class="linked-title">Survey auswerten</div><div class="linked-meta">Wartend auf Daten</div></div>
+      <div style="margin-top:15px;font-size:13px;color:#64748b">💰 ~$0.015/Anfrage (Kimi) | ~$0.15/Anfrage (Opus)</div>
+    </div>
+
+    <!-- Kai -->
+    <div class="member" onclick="openM('m-kai')">
+      <div class="member-head">
+        <div class="avatar">📅</div>
+        <div>
+          <div class="member-name">Kai</div>
+          <div class="member-role">Termin-Organisator</div>
+          <div class="member-model">⚡ Gemini 2.5 Flash</div>
+          <div class="status-indicator"><span class="status-dot status-waiting"></span>🟡 Letzter Check: vor 15 Min</div>
+        </div>
+      </div>
+      <div style="margin-bottom:15px">
+        <span class="skill">Gmail</span><span class="skill">Google Calendar</span><span class="skill">Verhandlung</span><span class="skill">Kontakt-Management</span>
+      </div>
+      <h3 class="section">Aktive Verhandlungen</h3>
+      <div class="linked" onclick="event.stopPropagation()"><div class="linked-title">Christian Lütkemeyer</div><div class="linked-meta">Mittagessen • wartend seit 14.03.</div></div>
+      <div class="linked" onclick="event.stopPropagation()"><div class="linked-title">Manuel Stepp (Test)</div><div class="linked-meta">Termin • wartend seit 14.03.</div></div>
+      <div class="linked blocked" onclick="event.stopPropagation()"><div class="linked-title">Matthias Eberle</div><div class="linked-meta">Blocked: Keine E-Mail</div></div>
+      <div style="margin-top:15px;font-size:13px;color:#64748b">💰 ~$0.005/Run • Läuft alle 15 Min • 24/7</div>
+    </div>
+
+    <!-- Mira -->
+    <div class="member" onclick="openM('m-mira')">
+      <div class="member-head">
+        <div class="avatar">🎤</div>
+        <div>
+          <div class="member-name">Mira</div>
+          <div class="member-role">Gesprächsführerin</div>
+          <div class="member-model">🗣️ GPT-4o (VAPI)</div>
+          <div class="status-indicator"><span class="status-dot status-online"></span>🟢 Bereit — wartet auf Anrufe</div>
+        </div>
+      </div>
+      <div style="margin-bottom:15px">
+        <span class="skill">Spracherkennung</span><span class="skill">Gesprächsführung</span><span class="skill">Transkription</span><span class="skill">Deutsch</span>
+      </div>
+      <h3 class="section">Gesprächsablauf</h3>
+      <div class="linked done"><div class="linked-title">1. Vorstellung</div></div>
+      <div class="linked done"><div class="linked-title">2. KI-Stand im Unternehmen</div></div>
+      <div class="linked done"><div class="linked-title">3. Herausforderungen</div></div>
+      <div class="linked done"><div class="linked-title">4. Erwartungen an Roundtable</div></div>
+      <div class="linked done"><div class="linked-title">5. Interesse bestätigen</div></div>
+      <div style="margin-top:15px;font-size:13px;color:#64748b">💰 ~$0.10/Gespräch (5 Min)</div>
+    </div>
+
+    <!-- Leo -->
+    <div class="member" onclick="openM('m-leo')">
+      <div class="member-head">
+        <div class="avatar">📞</div>
+        <div>
+          <div class="member-name">Leo</div>
+          <div class="member-role">Telefonist (in Ausbildung)</div>
+          <div class="member-model">📞 Twilio (geplant)</div>
+          <div class="status-indicator"><span class="status-dot status-blocked"></span>🔴 In Ausbildung — wartet auf Upgrade</div>
+        </div>
+      </div>
+      <div style="margin-bottom:15px">
+        <span class="skill">Anrufe (geplant)</span><span class="skill">Voicemails (geplant)</span><span class="skill">Kaltakquise (geplant)</span>
+      </div>
+      <h3 class="section">Ausbildungsfortschritt</h3>
+      <div class="linked done"><div class="linked-title">✅ VAPI-Account erstellt</div></div>
+      <div class="linked done"><div class="linked-title">✅ Deutsche Stimme konfiguriert</div></div>
+      <div class="linked blocked"><div class="linked-title">🔴 Twilio Upgrade ($20)</div></div>
+      <div style="margin-top:15px;font-size:13px;color:#64748b">💰 ~$0.10/Anruf</div>
+    </div>
+
+    <!-- Link -->
+<div class="member" onclick="openM('m-link')">
+<div class="member-head">
+<div class="avatar">💼</div>
+<div>
+<div class="member-name">Link</div>
+<div class="member-role">LinkedIn Outreach</div>
+<div class="member-model">⚡ Gemini Flash</div>
+<div class="status-indicator"><span class="status-dot status-waiting"></span>🟡 In Planung</div>
+</div>
+</div>
+<div style="margin-bottom:15px">
+<span class="skill">Lead-Generierung</span><span class="skill">DACH-Fokus</span><span class="skill">HR-Leiter</span><span class="skill">Playwright</span>
+</div>
+<h3 class="section">Mission</h3>
+<div class="linked"><div class="linked-title">Direktansprache HR-Leiter</div><div class="linked-meta">human + AI Community</div></div>
+<div style="margin-top:15px;font-size:13px;color:#64748b">💰 ~$0.002/Call • 15 Verbindungen/Tag</div>
+</div>
+
+<!-- Remy -->
+<div class="member" onclick="openM('m-remy')">
+<div class="member-head">
+<div class="avatar">⏰</div>
+<div>
+<div class="member-name">Remy</div>
+<div class="member-role">Reminder Bot</div>
+<div class="member-model">⚡ Gemini Flash</div>
+<div class="status-indicator"><span class="status-dot status-online"></span>🟢 Überwacht alle 60s</div>
+</div>
+</div>
+<div style="margin-bottom:15px">
+<span class="skill">Erinnerungen</span><span class="skill">Telegram</span><span class="skill">Cron</span>
+</div>
+<h3 class="section">Aktuell</h3>
+<div class="linked"><div class="linked-title">1 aktive Erinnerung</div></div>
+<div style="margin-top:15px;font-size:13px;color:#64748b">💰 ~$0.001/min</div>
+</div>
+
+<!-- Dev -->
+    <div class="member" onclick="openM('m-dev')">
+      <div class="member-head">
+        <div class="avatar">💻</div>
+        <div>
+          <div class="member-name">Dev</div>
+          <div class="member-role">Coder</div>
+          <div class="member-model">🧠 DeepSeek V3</div>
+          <div class="status-indicator"><span class="status-dot status-online"></span>🟢 Aktiv — Dashboard V3 bauen</div>
+        </div>
+      </div>
+      <div style="margin-bottom:15px">
+        <span class="skill">HTML/CSS/JS</span><span class="skill">Python</span><span class="skill">Shell</span><span class="skill">Systemadmin</span><span class="skill">APIs</span>
+      </div>
+      <h3 class="section">Erledigte Tasks</h3>
+      <div class="linked done"><div class="linked-title">✅ Dashboard V3 gebaut</div><div class="linked-meta">15.03.2026</div></div>
+      <div style="margin-top:15px;font-size:13px;color:#64748b">💰 ~$0.001/Anfrage</div>
+    </div>
+
+  </div>
+</div>
+<!-- Modal human+AI -->
+<div id="m-hai" class="modal-bg" onclick="if(event.target===this)closeM('m-hai')">
+<div class="modal">
+<div class="modal-head">
+<h2>🎯 human + AI</h2>
+<button class="close" onclick="closeM('m-hai')">×</button>
+</div>
+<div class="modal-body">
+<p style="color:#94a3b8;margin-bottom:20px">Die größte HR-Leiter Community im DACH-Raum aufbauen. Roundtable zum Thema KI im Personalwesen.</p>
+<div class="info-grid">
+<div class="info-box"><div class="info-val">60%</div><div class="info-lbl">Fortschritt</div></div>
+<div class="info-box"><div class="info-val">5</div><div class="info-lbl">Meilensteine</div></div>
+<div class="info-box"><div class="info-val">3</div><div class="info-lbl">Team</div></div>
+</div>
+<h3 class="section">🔗 Verknüpfte Tasks</h3>
+<div class="linked done" onclick="closeM('m-hai')"><div class="linked-title">✅ Survey-Bot erstellt</div><div class="linked-meta">Erledigt • Promi</div></div>
+<div class="linked done" onclick="closeM('m-hai')"><div class="linked-title">✅ Fragen definiert</div><div class="linked-meta">Erledigt • Promi</div></div>
+<div class="linked" onclick="closeM('m-hai');openM('m-task-survey-send')"><div class="linked-title">📧 Survey an HR-Leiter senden</div><div class="linked-meta">Ready • Manuel</div></div>
+<div class="linked" onclick="closeM('m-hai')"><div class="linked-title">📊 Ergebnisse sammeln</div><div class="linked-meta">Wartend • Mira</div></div>
+<h3 class="section">👥 Team (klickbar)</h3>
+<span class="tag" onclick="closeM('m-hai');openM('m-mira')">🎤 Mira</span>
+<span class="tag" onclick="closeM('m-hai');openM('m-promi')">🎯 Promi</span>
+<span class="tag" onclick="closeM('m-hai')">👔 Manuel</span>
+</div>
+</div>
+</div>
+
+<!-- Modal Termin -->
+<div id="m-termin" class="modal-bg" onclick="if(event.target===this)closeM('m-termin')">
+<div class="modal">
+<div class="modal-head">
+<h2>📅 Termin-Assistent</h2>
+<button class="close" onclick="closeM('m-termin')">×</button>
+</div>
+<div class="modal-body">
+<p style="color:#94a3b8;margin-bottom:20px">Kai organisiert automatisch Mittagessen und Termine. Prüft alle 15 Minuten die Inbox.</p>
+<div class="info-grid">
+<div class="info-box"><div class="info-val">80%</div><div class="info-lbl">Fortschritt</div></div>
+<div class="info-box"><div class="info-val">3</div><div class="info-lbl">Kontakte</div></div>
+<div class="info-box"><div class="info-val">15min</div><div class="info-lbl">Check-Intervall</div></div>
+</div>
+<h3 class="section">🔗 Aktive Verhandlungen (klickbar)</h3>
+<div class="linked" onclick="closeM('m-termin');openM('m-kai')"><div style="display:flex;justify-content:space-between"><span class="linked-title">Christian Lütkemeyer</span><span class="badge b-blue">Wartend</span></div><div class="linked-meta">Mittagessen KW 13 • seit 14.03.</div></div>
+<div class="linked" onclick="closeM('m-termin');openM('m-kai')"><div style="display:flex;justify-content:space-between"><span class="linked-title">Manuel Stepp</span><span class="badge b-blue">Wartend</span></div><div class="linked-meta">Test-Termin • seit 14.03.</div></div>
+<div class="linked blocked" onclick="closeM('m-termin');openM('m-leo')"><div style="display:flex;justify-content:space-between"><span class="linked-title">Matthias Eberle</span><span class="badge b-red">Blocked</span></div><div class="linked-meta">Keine E-Mail vorhanden</div></div>
+<h3 class="section">👥 Team (klickbar)</h3>
+<span class="tag" onclick="closeM('m-termin');openM('m-kai')">📅 Kai</span>
+<span class="tag" onclick="closeM('m-termin');openM('m-promi')">🎯 Promi</span>
+</div>
+</div>
+</div>
+
+<!-- Modal Telefonie -->
+<div id="m-tel" class="modal-bg" onclick="if(event.target===this)closeM('m-tel')">
+<div class="modal">
+<div class="modal-head">
+<h2>📞 Telefonie</h2>
+<button class="close" onclick="closeM('m-tel')">×</button>
+</div>
+<div class="modal-body">
+<p style="color:#94a3b8;margin-bottom:20px">Leo lernt telefonieren. VAPI eingerichtet, Twilio wartet auf Upgrade.</p>
+<div class="info-grid">
+<div class="info-box"><div class="info-val">40%</div><div class="info-lbl">Fortschritt</div></div>
+<div class="info-box"><div class="info-val">$20</div><div class="info-lbl">Upgrade nötig</div></div>
+<div class="info-box"><div class="info-val">🔴</div><div class="info-lbl">Blocked</div></div>
+</div>
+<div style="background:rgba(248,113,113,.1);border:1px solid #f87171;padding:15px;border-radius:10px;margin-bottom:20px">
+<strong style="color:#f87171">⚠️ Blocker:</strong>
+<p style="margin-top:5px;color:#94a3b8">Twilio Trial-Account erlaubt keine internationalen Anrufe. Upgrade: $20.</p>
+</div>
+<h3 class="section">👥 Team (klickbar)</h3>
+<span class="tag" onclick="closeM('m-tel');openM('m-leo')">📞 Leo</span>
+<span class="tag" onclick="closeM('m-tel');openM('m-promi')">🎯 Promi</span>
+</div>
+</div>
+</div>
+<!-- Modal Promi -->
+<div id="m-promi" class="modal-bg" onclick="if(event.target===this)closeM('m-promi')">
+<div class="modal"><div class="modal-head"><h2>🎯 Promi — Details</h2><button class="close" onclick="closeM('m-promi')">×</button></div><div class="modal-body">
+<div class="info-grid"><div class="info-box"><div class="info-val">🧠</div><div class="info-lbl">Kimi K2.5</div></div><div class="info-box"><div class="info-val">$0.015</div><div class="info-lbl">Pro Anfrage</div></div><div class="info-box"><div class="info-val">24/7</div><div class="info-lbl">Verfügbar</div></div></div>
+<div class="activity-log">🟢 Gerade online — Dashboard V3 reviewen und Dev koordinieren</div>
+<h3 class="section">Skills</h3>
+<span class="skill">Planung</span><span class="skill">Code-Review</span><span class="skill">Troubleshooting</span><span class="skill">Bot-Orchestrierung</span><span class="skill">Auswertung</span><span class="skill">Telegram</span>
+<h3 class="section">Aktuelle Tasks</h3>
+<div class="linked" onclick="closeM('m-promi')"><div class="linked-title">Team koordinieren</div><div class="linked-meta">Laufend</div></div>
+<div class="linked" onclick="closeM('m-promi')"><div class="linked-title">Survey auswerten</div><div class="linked-meta">Wartend auf Daten</div></div>
+<h3 class="section">Performance (heute)</h3>
+<div class="cost-card"><div class="cost-row"><span>Anfragen</span><span>47</span></div><div class="cost-row"><span>Kosten</span><span>$0.71</span></div><div class="cost-row"><span>Erfolgsrate</span><span style="color:#34d399">98%</span></div></div>
+</div></div></div>
+
+<!-- Modal Kai -->
+<div id="m-kai" class="modal-bg" onclick="if(event.target===this)closeM('m-kai')">
+<div class="modal"><div class="modal-head"><h2>📅 Kai — Details</h2><button class="close" onclick="closeM('m-kai')">×</button></div><div class="modal-body">
+<div class="info-grid"><div class="info-box"><div class="info-val">⚡</div><div class="info-lbl">Gemini Flash</div></div><div class="info-box"><div class="info-val">$0.005</div><div class="info-lbl">Pro Run</div></div><div class="info-box"><div class="info-val">15min</div><div class="info-lbl">Intervall</div></div></div>
+<div class="activity-log">🟡 Letzter Check: vor 15 Minuten — alle 15 Minuten automatisch</div>
+<h3 class="section">Skills</h3>
+<span class="skill">Gmail</span><span class="skill">Google Calendar</span><span class="skill">Verhandlung</span><span class="skill">Kontakt-Management</span>
+<h3 class="section">Aktive Verhandlungen (klickbar)</h3>
+<div class="linked" onclick="closeM('m-kai');openM('m-termin')"><div style="display:flex;justify-content:space-between"><span class="linked-title">Christian Lütkemeyer</span><span class="badge b-blue">Wartend</span></div><div class="linked-meta">Mittagessen • wartend seit 14.03.</div></div>
+<div class="linked" onclick="closeM('m-kai');openM('m-termin')"><div style="display:flex;justify-content:space-between"><span class="linked-title">Manuel Stepp</span><span class="badge b-blue">Wartend</span></div><div class="linked-meta">Test-Termin • wartend seit 14.03.</div></div>
+<div class="linked blocked" onclick="closeM('m-kai');openM('m-leo')"><div style="display:flex;justify-content:space-between"><span class="linked-title">Matthias Eberle</span><span class="badge b-red">Blocked</span></div><div class="linked-meta">Keine E-Mail vorhanden</div></div>
+<h3 class="section">Performance (heute)</h3>
+<div class="cost-card"><div class="cost-row"><span>Prüfungen</span><span>96</span></div><div class="cost-row"><span>Emails gesendet</span><span>2</span></div><div class="cost-row"><span>Antworten erhalten</span><span>0</span></div></div>
+</div></div></div>
+
+<!-- Modal Mira -->
+<div id="m-mira" class="modal-bg" onclick="if(event.target===this)closeM('m-mira')">
+<div class="modal"><div class="modal-head"><h2>🎤 Mira — Details</h2><button class="close" onclick="closeM('m-mira')">×</button></div><div class="modal-body">
+<div class="info-grid"><div class="info-box"><div class="info-val">🗣️</div><div class="info-lbl">GPT-4o (VAPI)</div></div><div class="info-box"><div class="info-val">$0.10</div><div class="info-lbl">Pro Gespräch</div></div><div class="info-box"><div class="info-val">5min</div><div class="info-lbl">Dauer</div></div></div>
+<div class="activity-log">🟢 Bereit — wartet auf erste Survey-Anrufe von HR-Leitern</div>
+<h3 class="section">Skills</h3>
+<span class="skill">Spracherkennung</span><span class="skill">Gesprächsführung</span><span class="skill">Transkription</span><span class="skill">Deutsch</span>
+<h3 class="section">Gesprächsablauf (klickbar → Projekt)</h3>
+<div class="linked done" onclick="closeM('m-mira');openM('m-hai')"><div class="linked-title">1. Vorstellung + Einverständnis</div></div>
+<div class="linked done" onclick="closeM('m-mira');openM('m-hai')"><div class="linked-title">2. KI-Stand im Unternehmen</div></div>
+<div class="linked done" onclick="closeM('m-mira');openM('m-hai')"><div class="linked-title">3. Aktuelle Herausforderungen</div></div>
+<div class="linked done" onclick="closeM('m-mira');openM('m-hai')"><div class="linked-title">4. Erwartungen an Roundtable</div></div>
+<div class="linked done" onclick="closeM('m-mira');openM('m-hai')"><div class="linked-title">5. Interesse bestätigen</div></div>
+<div class="linked done" onclick="closeM('m-mira');openM('m-hai')"><div class="linked-title">6. Dank + Verabschiedung</div></div>
+<h3 class="section">Statistik</h3>
+<div class="cost-card"><div class="cost-row"><span>Gespräche bisher</span><span>0</span></div><div class="cost-row"><span>Erfolgsquote</span><span>—</span></div><div class="cost-row"><span>Status</span><span style="color:#34d399">🟢 Bereit</span></div></div>
+</div></div></div>
+
+<!-- Modal Leo -->
+<div id="m-leo" class="modal-bg" onclick="if(event.target===this)closeM('m-leo')">
+<div class="modal"><div class="modal-head"><h2>📞 Leo — Details</h2><button class="close" onclick="closeM('m-leo')">×</button></div><div class="modal-body">
+<div class="info-grid"><div class="info-box"><div class="info-val">📞</div><div class="info-lbl">Twilio (geplant)</div></div><div class="info-box"><div class="info-val">$0.10</div><div class="info-lbl">Pro Anruf</div></div><div class="info-box"><div class="info-val">🔴</div><div class="info-lbl">In Ausbildung</div></div></div>
+<div style="background:rgba(248,113,113,.1);border:1px solid #f87171;padding:15px;border-radius:10px;margin:20px 0"><strong style="color:#f87171">⚠️ Wartet auf Twilio Upgrade ($20)</strong></div>
+<div class="activity-log">🔴 In Ausbildung — lernt Telefonie-Grundlagen, wartet auf Upgrade</div>
+<h3 class="section">Geplante Skills (nach Upgrade)</h3>
+<span class="skill">Anrufe tätigen</span><span class="skill">Voicemails hinterlassen</span><span class="skill">Kontakt anrufen</span><span class="skill">Follow-up Calls</span><span class="skill">Terminbestätigung</span>
+<h3 class="section">Abhängigkeiten</h3>
+<div class="linked blocked" onclick="closeM('m-leo')"><div style="display:flex;justify-content:space-between"><span class="linked-title">Twilio Upgrade</span><span class="badge b-red">$20 nötig</span></div><div class="linked-meta">Upgrade auf bezahlten Account erforderlich</div></div>
+<div class="linked" onclick="closeM('m-leo');openM('m-mira')"><div style="display:flex;justify-content:space-between"><span class="linked-title">Mira → Sprach-Pipeline</span><span class="badge b-blue">Verknüpft</span></div><div class="linked-meta">Nutzt gleiche VAPI-Infrastruktur</div></div>
+<h3 class="section">Roadmap</h3>
+<div class="cost-card"><div class="cost-row"><span>Phase 1</span><span>Twilio Upgrade</span></div><div class="cost-row"><span>Phase 2</span><span>Testanrufe intern</span></div><div class="cost-row"><span>Phase 3</span><span>Live mit Kontakten</span></div></div>
+</div></div></div>
+
+<!-- Modal Dev -->
+<div id="m-dev" class="modal-bg" onclick="if(event.target===this)closeM('m-dev')">
+<div class="modal"><div class="modal-head"><h2>💻 Dev — Details</h2><button class="close" onclick="closeM('m-dev')">×</button></div><div class="modal-body">
+<div class="info-grid"><div class="info-box"><div class="info-val">🤖</div><div class="info-lbl">Claude Opus</div></div><div class="info-box"><div class="info-val">$0.06</div><div class="info-lbl">Pro Anfrage</div></div><div class="info-box"><div class="info-val">On-Demand</div><div class="info-lbl">Verfügbar</div></div></div>
+<div class="activity-log">🟢 Gerade aktiv — Dashboard V3 bauen</div>
+<h3 class="section">Skills</h3>
+<span class="skill">HTML/CSS/JS</span><span class="skill">Dashboard-Design</span><span class="skill">Responsive UI</span><span class="skill">Animations</span><span class="skill">API Integration</span><span class="skill">Debugging</span>
+<h3 class="section">Aktuelle Tasks</h3>
+<div class="linked" onclick="closeM('m-dev')"><div style="display:flex;justify-content:space-between"><span class="linked-title">Dashboard V3 — Team-Modals</span><span class="badge b-green">Aktiv</span></div><div class="linked-meta">Interaktive Member-Modals mit Cross-Links</div></div>
+<div class="linked" onclick="closeM('m-dev')"><div style="display:flex;justify-content:space-between"><span class="linked-title">Dashboard V3 — Projekt-Panels</span><span class="badge b-blue">Wartend</span></div><div class="linked-meta">HAI Roundtable + Termin-Panels</div></div>
+<div class="linked done" onclick="closeM('m-dev')"><div style="display:flex;justify-content:space-between"><span class="linked-title">Dashboard V3 — Grundstruktur</span><span class="badge b-green">✓ Done</span></div><div class="linked-meta">Layout, Theme, Navigation</div></div>
+<h3 class="section">Performance (heute)</h3>
+<div class="cost-card"><div class="cost-row"><span>Anfragen</span><span>23</span></div><div class="cost-row"><span>Kosten</span><span>$1.38</span></div><div class="cost-row"><span>Code-Qualität</span><span style="color:#34d399">A+</span></div></div>
+</div></div></div>
+<script>
+// Tab-Wechsel
+function showTab(tabId) {
+// Alle Tabs ausblenden
+const tabs = document.querySelectorAll('.tab');
+tabs.forEach(t => t.classList.remove('active'));
+// Alle Nav-Buttons deaktivieren
+const navBtns = document.querySelectorAll('.nav-btn');
+navBtns.forEach(b => b.classList.remove('active'));
+// Gewählten Tab anzeigen
+document.getElementById(tabId).classList.add('active');
+// Gewählten Button aktivieren
+event.target.classList.add('active');
+}
+
+// Modal öffnen
+function openM(modalId) {
+const modal = document.getElementById(modalId);
+if (modal) {
+modal.classList.add('active');
+document.body.style.overflow = 'hidden';
+}
+}
+
+// Modal schließen
+function closeM(modalId) {
+const modal = document.getElementById(modalId);
+if (modal) {
+modal.classList.remove('active');
+document.body.style.overflow = '';
+}
+}
+
+// Escape-Taste schließt alle Modals
+document.addEventListener('keydown', function(e) {
+if (e.key === 'Escape') {
+const modals = document.querySelectorAll('.modal-bg');
+modals.forEach(m => m.classList.remove('active'));
+document.body.style.overflow = '';
+}
+});
+
+// Tasks nach Projekt filtern
+function filterTasks(project) {
+// Alle Filter-Buttons aktualisieren
+const filterBtns = document.querySelectorAll('.filter-btn');
+filterBtns.forEach(btn => {
+btn.style.background = '#334155';
+btn.classList.remove('active');
+});
+event.target.style.background = '#667eea';
+event.target.classList.add('active');
+
+// Alle Task-Items filtern
+const taskItems = document.querySelectorAll('.linked');
+taskItems.forEach(item => {
+const itemProject = item.getAttribute('data-project');
+if (project === 'all' || itemProject === project) {
+item.style.display = 'block';
+} else {
+item.style.display = 'none';
+}
+});
+}
+
+// Nav-Buttons mit Event-Listenern verbinden
+document.querySelectorAll('.nav-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+const tabId = this.getAttribute('onclick').match(/showTab\('([^']+)'\)/)[1];
+// Alle Tabs ausblenden
+document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+// Alle Buttons deaktivieren
+document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+// Aktivieren
+document.getElementById(tabId).classList.add('active');
+this.classList.add('active');
+});
+});
+
+// Console-Log für Debugging
+console.log('🚀 Mission Control v3 geladen');
+console.log('📊 Tabs: Dashboard, Projekte, Tasks, Team');
+console.log('👥 Team: Promi, Kai, Mira, Leo, Dev');
+
+// Task verschieben zwischen Spalten
+function moveTask(btn, targetColumn) {
+  const taskItem = btn.closest('.linked');
+  const currentColumn = taskItem.closest('.task-column');
+  
+  // Visuelles Feedback
+  taskItem.style.opacity = '0.5';
+  
+  // Finde Ziel-Spalte
+  const targetCol = document.querySelector('.task-column.' + targetColumn);
+  if (targetCol) {
+    // Verschiebe Task
+    targetCol.appendChild(taskItem);
+    
+    // Update Styling basierend auf Spalte
+    taskItem.classList.remove('blocked', 'done');
+    if (targetColumn === 'blocked') taskItem.classList.add('blocked');
+    if (targetColumn === 'done') taskItem.classList.add('done');
+    
+    // Animation
+    taskItem.style.opacity = '1';
+    taskItem.style.animation = 'slideIn 0.3s ease';
+    
+    console.log('Task verschoben zu:', targetColumn);
+  }
+}
+
+// Animation für Slide-In
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+`;
+document.head.appendChild(style);
+
+// DRAG & DROP FÜR TASKS
+function allowDrop(ev) { ev.preventDefault(); }
+function drag(ev) { 
+  ev.dataTransfer.setData("text", ev.target.id); 
+  ev.target.classList.add('dragging');
+}
+function allowDrop(ev) { 
+  ev.preventDefault(); 
+  var col = ev.target.closest('.task-column');
+  if (col) col.classList.add('drag-over');
+}
+document.addEventListener('dragleave', function(e) {
+  var col = e.target.closest('.task-column');
+  if (col && !col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+});
+document.addEventListener('drop', function(e) {
+  document.querySelectorAll('.task-column').forEach(c => c.classList.remove('drag-over'));
+  document.querySelectorAll('.linked').forEach(t => t.classList.remove('dragging'));
+});
+function drop(ev) {
+  ev.preventDefault();
+  var data = ev.dataTransfer.getData("text");
+  var draggedElement = document.getElementById(data);
+  var dropZone = ev.target.closest('.task-column');
+  
+  if (dropZone && draggedElement) {
+    dropZone.appendChild(draggedElement);
+    updateColumnCounts();
+    
+    // Update styling based on column
+    draggedElement.classList.remove('blocked', 'done');
+    if (dropZone.classList.contains('blocked')) draggedElement.classList.add('blocked');
+    if (dropZone.classList.contains('done')) draggedElement.classList.add('done');
+    
+    console.log('Task', data, 'moved to', dropZone.dataset.column);
+  }
+}
+
+// Projekt ändern via Dropdown
+function changeProject(select) {
+  var task = select.closest('.linked');
+  var newProject = select.value;
+  task.setAttribute('data-project', newProject);
+  console.log('Task Projekt geändert zu:', newProject);
+}
+
+// Task-Zähler aktualisieren
+function updateColumnCounts() {
+  document.querySelectorAll('.task-column').forEach(col => {
+    var count = col.querySelectorAll('.linked').length;
+    var badge = col.querySelector('.task-count');
+    if (badge) badge.textContent = count;
+  });
+}
+
+// Beim Start ausführen
+updateColumnCounts();
+</script>
+
+</body>
+</html>
