@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remy Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0056b3; }
+        .reminder-card { background-color: #e9ecef; border: 1px solid #dee2e6; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+        .reminder-card.high { border-left: 5px solid #dc3545; }
+        .reminder-card.medium { border-left: 5px solid #ffc107; }
+        .reminder-card.low { border-left: 5px solid #28a745; }
+        .reminder-card p { margin: 5px 0; }
+        .reminder-card strong { color: #000; }
+        .overdue { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Remy - Dein Erinnerungs-Dashboard</h1>
+
+        <h2>Fällige / Überfällige Erinnerungen</h2>
+        {% if due_overdue_reminders %}
+            {% for rem in due_overdue_reminders %}
+                <div class="reminder-card {{ rem.priority }}">
+                    <p><strong>ID:</strong> {{ rem.id }}</p>
+                    <p><strong>Nachricht:</strong> {{ rem.message }}</p>
+                    <p><strong>Fällig:</strong> <span class="{% if rem.remind_at < now %}overdue{% endif %}">{{ rem.remind_at }}</span></p>
+                    <p><strong>Priorität:</strong> {{ rem.priority }}</p>
+                    <p><strong>Kategorie:</strong> {{ rem.category }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Keine fälligen oder überfälligen Erinnerungen.</p>
+        {% endif %}
+
+        <h2>Kommende Erinnerungen (nächste 7 Tage)</h2>
+        {% if upcoming_reminders %}
+            {% for rem in upcoming_reminders %}
+                <div class="reminder-card {{ rem.priority }}">
+                    <p><strong>ID:</strong> {{ rem.id }}</p>
+                    <p><strong>Nachricht:</strong> {{ rem.message }}</p>
+                    <p><strong>Fällig:</strong> {{ rem.remind_at }}</p>
+                    <p><strong>Priorität:</strong> {{ rem.priority }}</p>
+                    <p><strong>Kategorie:</strong> {{ rem.category }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Keine kommenden Erinnerungen in den nächsten 7 Tagen.</p>
+        {% endif %}
+
+        <h2>Alle aktiven Erinnerungen</h2>
+        {% if active_reminders %}
+            {% for rem in active_reminders %}
+                <div class="reminder-card {{ rem.priority }}">
+                    <p><strong>ID:</strong> {{ rem.id }}</p>
+                    <p><strong>Nachricht:</strong> {{ rem.message }}</p>
+                    <p><strong>Fällig:</strong> {{ rem.remind_at }}</p>
+                    <p><strong>Priorität:</strong> {{ rem.priority }}</p>
+                    <p><strong>Kategorie:</strong> {{ rem.category }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Keine aktiven Erinnerungen.</p>
+        {% endif %}
+
+    </div>
+</body>
+</html>
