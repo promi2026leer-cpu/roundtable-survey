@@ -807,6 +807,48 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+// DRAG & DROP FÜR TASKS
+function allowDrop(ev) { ev.preventDefault(); }
+function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+function drop(ev) {
+  ev.preventDefault();
+  var data = ev.dataTransfer.getData("text");
+  var draggedElement = document.getElementById(data);
+  var dropZone = ev.target.closest('.task-column');
+  
+  if (dropZone && draggedElement) {
+    dropZone.appendChild(draggedElement);
+    updateColumnCounts();
+    
+    // Update styling based on column
+    draggedElement.classList.remove('blocked', 'done');
+    if (dropZone.classList.contains('blocked')) draggedElement.classList.add('blocked');
+    if (dropZone.classList.contains('done')) draggedElement.classList.add('done');
+    
+    console.log('Task', data, 'moved to', dropZone.dataset.column);
+  }
+}
+
+// Projekt ändern via Dropdown
+function changeProject(select) {
+  var task = select.closest('.linked');
+  var newProject = select.value;
+  task.setAttribute('data-project', newProject);
+  console.log('Task Projekt geändert zu:', newProject);
+}
+
+// Task-Zähler aktualisieren
+function updateColumnCounts() {
+  document.querySelectorAll('.task-column').forEach(col => {
+    var count = col.querySelectorAll('.linked').length;
+    var badge = col.querySelector('.task-count');
+    if (badge) badge.textContent = count;
+  });
+}
+
+// Beim Start ausführen
+updateColumnCounts();
 </script>
 
 </body>
