@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de"><head>
+<meta charset="UTF-8">
+<title>A-Team Kalender</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding:30px}
+.container{max-width:1200px;margin:0 auto}
+h1{text-align:center;font-size:36px;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:30px}
+.calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:15px 20px;background:#1e293b;border-radius:12px}
+.nav-btn{background:#334155;border:none;color:#e2e8f0;padding:10px 20px;border-radius:8px;cursor:pointer}
+.current-month{font-size:24px;font-weight:700}
+.weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:10px}
+.weekday{text-align:center;padding:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;font-size:12px}
+.days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.day{background:#1e293b;border-radius:12px;min-height:100px;padding:12px;border:1px solid #334155;cursor:pointer}
+.day:hover{border-color:#667eea}
+.day.today{border-color:#667eea;box-shadow:0 0 20px rgba(102,126,234,0.3)}
+.day-number{font-size:18px;font-weight:700;margin-bottom:8px}
+.day.today .day-number{color:#667eea}
+.day-event{font-size:11px;padding:4px 8px;border-radius:4px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-event.human-ai{background:rgba(102,126,234,0.3);border-left:3px solid #667eea}
+.day-event.termin{background:rgba(251,191,36,0.3);border-left:3px solid #fbbf24}
+.day-event.linkedin{background:rgba(52,211,153,0.3);border-left:3px solid #34d399}
+.add-btn{position:fixed;bottom:30px;right:30px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);border:none;color:white;font-size:30px;cursor:pointer;box-shadow:0 10px 30px rgba(102,126,234,0.4)}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>📅 A-Team Kalender</h1>
+<p class="subtitle">Team-Termine & Verfügbarkeiten</p>
+
+<div class="calendar-header">
+<button class="nav-btn">◀</button>
+<span class="current-month">März 2026</span>
+<button class="nav-btn">▶</button>
+</div>
+
+<div class="weekdays">
+<div class="weekday">Mo</div><div class="weekday">Di</div><div class="weekday">Mi</div><div class="weekday">Do</div><div class="weekday">Fr</div><div class="weekday">Sa</div><div class="weekday">So</div>
+</div>
+
+<div class="days-grid">
+<div class="day"><div class="day-number">10</div></div>
+<div class="day"><div class="day-number">11</div></div>
+<div class="day"><div class="day-number">12</div></div>
+<div class="day"><div class="day-number">13</div></div>
+<div class="day"><div class="day-number">14</div></div>
+<div class="day today"><div class="day-number">15</div><div class="day-event" style="background:rgba(148,163,184,0.3)">📊 Dashboard Review</div><div class="day-event" style="background:rgba(52,211,153,0.3)">💼 LinkedIn Setup</div></div>
+<div class="day"><div class="day-number">16</div><div class="day-event" style="background:rgba(148,163,184,0.3)">🤝 Executive Meeting</div></div>
+</div>
+
+<button class="add-btn">+</button>
+</div>
+</body>
+</html>
