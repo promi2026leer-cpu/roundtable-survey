@@ -319,66 +319,158 @@ h3.section{font-size:13px;color:#94a3b8;text-transform:uppercase;letter-spacing:
 
 <!-- 3-Spalten Tasks -->
 <div class="tasks-grid">
-<div class="task-column work">
-<h3>🏃‍♂️ In Arbeit</h3>
-<div class="linked" data-project="human-ai" onclick="openM('m-task-survey-send')">
+<div class="task-column work" ondrop="drop(event)" ondragover="allowDrop(event)" data-column="work">
+<h3>🏃‍♂️ In Arbeit <span class="task-count">3</span></h3>
+<div class="linked" id="task-1" draggable="true" ondragstart="drag(event)" data-project="human-ai" onclick="openM('m-task-survey-send')">
 <div style="display:flex;justify-content:space-between;align-items:center">
 <span class="linked-title">📧 Survey an HR-Leiter senden</span>
 <span class="badge b-yellow">Ready</span>
 </div>
 <div class="linked-meta">Projekt: human+AI • Zuständig: Manuel</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
 </div>
-<div class="linked" data-project="termin" onclick="openM('m-kai')">
+<div class="linked" id="task-2" draggable="true" ondragstart="drag(event)" data-project="termin" onclick="openM('m-kai')">
 <div style="display:flex;justify-content:space-between;align-items:center">
 <span class="linked-title">⏳ Christians Antwort</span>
 <span class="badge b-blue">Wartend</span>
 </div>
 <div class="linked-meta">Projekt: Termin-Assistent • Kai</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin" selected>📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
 </div>
-<div class="linked" data-project="termin" onclick="openM('m-kai')">
+<div class="linked" id="task-3" draggable="true" ondragstart="drag(event)" data-project="termin" onclick="openM('m-kai')">
 <div style="display:flex;justify-content:space-between;align-items:center">
 <span class="linked-title">⏳ Manuels Test-Antwort</span>
 <span class="badge b-blue">Wartend</span>
 </div>
 <div class="linked-meta">Projekt: Termin-Assistent • Kai</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin" selected>📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
 </div>
 </div>
 
-<div class="task-column blocked">
-<h3>🔴 Blocked</h3>
-<div class="linked blocked" onclick="openM('m-leo')">
+<div class="task-column blocked" ondrop="drop(event)" ondragover="allowDrop(event)" data-column="blocked">
+<h3>🔴 Blocked <span class="task-count">3</span></h3>
+<div class="linked blocked" id="task-4" draggable="true" ondragstart="drag(event)" data-project="termin" onclick="openM('m-leo')">
 <div style="display:flex;justify-content:space-between;align-items:center">
 <span class="linked-title">🔴 Matthias kontaktieren</span>
 <span class="badge b-red">Blocked</span>
 </div>
 <div class="linked-meta">Keine E-Mail vorhanden</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin" selected>📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
 </div>
-<div class="linked blocked" onclick="openM('m-tel')">
+<div class="linked blocked" id="task-5" draggable="true" ondragstart="drag(event)" data-project="telefonie" onclick="openM('m-tel')">
 <div style="display:flex;justify-content:space-between;align-items:center">
 <span class="linked-title">🔴 Twilio Upgrade</span>
 <span class="badge b-red">Blocked</span>
 </div>
 <div class="linked-meta">$20 nötig für internationale Anrufe</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie" selected>📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
 </div>
-<div class="linked blocked" onclick="openM('m-hai')">
+<div class="linked blocked" id="task-6" draggable="true" ondragstart="drag(event)" data-project="human-ai" onclick="openM('m-hai')">
 <div style="display:flex;justify-content:space-between;align-items:center">
 <span class="linked-title">🔴 GitHub Pages Deploy</span>
 <span class="badge b-red">Blocked</span>
 </div>
 <div class="linked-meta">Auth-Problem mit Token</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
 </div>
 </div>
 
-<div class="task-column done">
-<h3>✅ Erledigt</h3>
-<div class="linked done"><div class="linked-title">✅ Termin-Bot einrichten</div><div class="linked-meta">Promi • 14.03.</div></div>
-<div class="linked done"><div class="linked-title">✅ Survey-Bot erstellen (VAPI)</div><div class="linked-meta">Promi • 14.03.</div></div>
-<div class="linked done"><div class="linked-title">✅ VAPI einrichten</div><div class="linked-meta">Promi • 14.03.</div></div>
-<div class="linked done"><div class="linked-title">✅ Fragen definieren</div><div class="linked-meta">Promi • 14.03.</div></div>
-<div class="linked done"><div class="linked-title">✅ E-Mails gesendet</div><div class="linked-meta">Kai • 14.03.</div></div>
-<div class="linked done"><div class="linked-title">✅ Team aufgebaut</div><div class="linked-meta">Promi • 15.03.</div></div>
-<div class="linked done"><div class="linked-title">✅ API-Keys gesichert</div><div class="linked-meta">Promi • 14.03.</div></div>
-<div class="linked done"><div class="linked-title">✅ Dashboard V2 gebaut</div><div class="linked-meta">Dev+Promi • 15.03.</div></div>
+<div class="task-column done" ondrop="drop(event)" ondragover="allowDrop(event)" data-column="done">
+<h3>✅ Erledigt <span class="task-count">8</span></h3>
+<div class="linked done" id="task-7" draggable="true" ondragstart="drag(event)" data-project="termin"><div class="linked-title">✅ Termin-Bot einrichten</div><div class="linked-meta">Promi • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin" selected>📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-8" draggable="true" ondragstart="drag(event)" data-project="human-ai"><div class="linked-title">✅ Survey-Bot erstellen (VAPI)</div><div class="linked-meta">Promi • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-9" draggable="true" ondragstart="drag(event)" data-project="telefonie"><div class="linked-title">✅ VAPI einrichten</div><div class="linked-meta">Promi • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie" selected>📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-10" draggable="true" ondragstart="drag(event)" data-project="human-ai"><div class="linked-title">✅ Fragen definieren</div><div class="linked-meta">Promi • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-11" draggable="true" ondragstart="drag(event)" data-project="termin"><div class="linked-title">✅ E-Mails gesendet</div><div class="linked-meta">Kai • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai">🎯 human+AI</option>
+<option value="termin" selected>📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-12" draggable="true" ondragstart="drag(event)" data-project="human-ai"><div class="linked-title">✅ Team aufgebaut</div><div class="linked-meta">Promi • 15.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-13" draggable="true" ondragstart="drag(event)" data-project="human-ai"><div class="linked-title">✅ API-Keys gesichert</div><div class="linked-meta">Promi • 14.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
+<div class="linked done" id="task-14" draggable="true" ondragstart="drag(event)" data-project="human-ai"><div class="linked-title">✅ Dashboard V2 gebaut</div><div class="linked-meta">Dev+Promi • 15.03.</div>
+<select onchange="changeProject(this)" onclick="event.stopPropagation()" style="margin-top:8px;background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">
+<option value="human-ai" selected>🎯 human+AI</option>
+<option value="termin">📅 Termin-Assistent</option>
+<option value="telefonie">📞 Telefonie</option>
+<option value="linkedin">💼 LinkedIn</option>
+</select>
+</div>
 </div>
 </div>
 </div>
