@@ -236,6 +236,16 @@ h3.section{font-size:13px;color:#94a3b8;text-transform:uppercase;letter-spacing:
 <div id="tasks" class="tab">
 <h2>📋 Alle Tasks</h2>
 
+<!-- 🔍 Projekt-Filter -->
+<div class="filter-bar" style="background:#1e293b;padding:15px 20px;border-radius:12px;margin-bottom:25px;border:1px solid #334155">
+<span style="color:#94a3b8;margin-right:15px;font-weight:600">Filter nach Projekt:</span>
+<button class="filter-btn active" onclick="filterTasks('all')" style="padding:8px 16px;margin:4px;border:none;border-radius:8px;background:#667eea;color:#fff;cursor:pointer">Alle</button>
+<button class="filter-btn" onclick="filterTasks('human-ai')" style="padding:8px 16px;margin:4px;border:none;border-radius:8px;background:#334155;color:#e2e8f0;cursor:pointer">🎯 human+AI</button>
+<button class="filter-btn" onclick="filterTasks('termin')" style="padding:8px 16px;margin:4px;border:none;border-radius:8px;background:#334155;color:#e2e8f0;cursor:pointer">📅 Termin-Assistent</button>
+<button class="filter-btn" onclick="filterTasks('telefonie')" style="padding:8px 16px;margin:4px;border:none;border-radius:8px;background:#334155;color:#e2e8f0;cursor:pointer">📞 Telefonie</button>
+<button class="filter-btn" onclick="filterTasks('linkedin')" style="padding:8px 16px;margin:4px;border:none;border-radius:8px;background:#334155;color:#e2e8f0;cursor:pointer">💼 LinkedIn</button>
+</div>
+
 <!-- 💡 Ideen & Vorschläge -->
 <div class="ideas-section">
 <h3>💡 Ideen & Vorschläge — Was könnte helfen?</h3>
@@ -273,21 +283,21 @@ h3.section{font-size:13px;color:#94a3b8;text-transform:uppercase;letter-spacing:
 <div class="tasks-grid">
 <div class="task-column work">
 <h3>🏃‍♂️ In Arbeit</h3>
-<div class="linked" onclick="openM('m-task-survey-send')">
+<div class="linked" data-project="human-ai" onclick="openM('m-task-survey-send')">
 <div style="display:flex;justify-content:space-between;align-items:center">
 <span class="linked-title">📧 Survey an HR-Leiter senden</span>
 <span class="badge b-yellow">Ready</span>
 </div>
 <div class="linked-meta">Projekt: human+AI • Zuständig: Manuel</div>
 </div>
-<div class="linked" onclick="openM('m-kai')">
+<div class="linked" data-project="termin" onclick="openM('m-kai')">
 <div style="display:flex;justify-content:space-between;align-items:center">
 <span class="linked-title">⏳ Christians Antwort</span>
 <span class="badge b-blue">Wartend</span>
 </div>
 <div class="linked-meta">Projekt: Termin-Assistent • Kai</div>
 </div>
-<div class="linked" onclick="openM('m-kai')">
+<div class="linked" data-project="termin" onclick="openM('m-kai')">
 <div style="display:flex;justify-content:space-between;align-items:center">
 <span class="linked-title">⏳ Manuels Test-Antwort</span>
 <span class="badge b-blue">Wartend</span>
@@ -708,6 +718,29 @@ modals.forEach(m => m.classList.remove('active'));
 document.body.style.overflow = '';
 }
 });
+
+// Tasks nach Projekt filtern
+function filterTasks(project) {
+// Alle Filter-Buttons aktualisieren
+const filterBtns = document.querySelectorAll('.filter-btn');
+filterBtns.forEach(btn => {
+btn.style.background = '#334155';
+btn.classList.remove('active');
+});
+event.target.style.background = '#667eea';
+event.target.classList.add('active');
+
+// Alle Task-Items filtern
+const taskItems = document.querySelectorAll('.linked');
+taskItems.forEach(item => {
+const itemProject = item.getAttribute('data-project');
+if (project === 'all' || itemProject === project) {
+item.style.display = 'block';
+} else {
+item.style.display = 'none';
+}
+});
+}
 
 // Nav-Buttons mit Event-Listenern verbinden
 document.querySelectorAll('.nav-btn').forEach(btn => {
